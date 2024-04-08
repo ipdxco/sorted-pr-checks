@@ -1,0 +1,149 @@
+const core = require('@actions/core')
+const github = require('@actions/github')
+const _ = require('lodash')
+const fs = require('fs')
+
+const emojis = {
+  success: '✅',
+  failure: '❌',
+  neutral: '⚪',
+  cancelled: '🚫',
+  skipped: '⏭️',
+  timed_out: '⌛',
+  action_required: '⚠️',
+  queued: '🟡',
+  in_progress: '🟠',
+  completed: '🟢',
+  waiting: '🕒',
+  requested: '🔵',
+  pending: '🔵'
+}
+
+const descriptions = {
+  success: 'Successful',
+  failure: 'Failed',
+  neutral: 'Neutral',
+  cancelled: 'Cancelled',
+  skipped: 'Skipped',
+  timed_out: 'Timed out',
+  action_required: 'Action required',
+  queued: 'Queued',
+  in_progress: 'In progress',
+  completed: 'Completed',
+  waiting: 'Waiting',
+  requested: 'Requested',
+  pending: 'Pending'
+}
+
+async function run() {
+  try {
+    core.info('Retrieving the inputs...')
+    const repository = core.getInput('repository')
+    const [owner, repo] = repository.split('/').slice(-2)
+    const pull_number = core.getInput('pull_number')
+    const template_name = core.getInput('template')
+    const identifier = core.getInput('identifier')
+    const token = core.getInput('token')
+    core.info(`Repository: ${repository}`)
+    core.info(`Pull request number: ${pull_number}`)
+    core.info(`Template: ${template_name}`)
+    core.info(`Identifier: ${identifier}`)
+    core.info(`Token: ${token != null ? '***' : null}`)
+
+    core.info('Listing available templates...')
+    const templates = fs.readdirSync(`${__dirname}/templates`)
+    core.debug(`Templates: ${JSON.stringify(templates, null, 2)}`)
+
+    core.info('Inferring the template...')
+    let template
+    if (templates.includes(`${template_name}.md`)) {
+      core.info(`Reading in the template from the gallery...`)
+      template = fs.readFileSync(`${__dirname}/templates/${template_name}.md`, 'utf8')
+    } else {
+      core.info(`Treating the template as a lodash template...`)
+      template = template_name
+    }
+    core.debug(`Template: ${template}`)
+
+    core.info('Setting up the GitHub client...')
+    const octokit = new github.getOctokit(token)
+
+    core.info('Retrieving the pull request...')
+    const pull = await octokit.rest.pulls.get({
+      owner,
+      repo,
+      pull_number
+    })
+    core.debug(`Pull request: ${JSON.stringify(pull, null, 2)}`)
+
+    core.info('Retrieving the pull request check runs...')
+    const checks = await octokit.paginate(octokit.rest.checks.listForRef, {
+      owner,
+      repo,
+      ref: pull.data.head.sha,
+    })
+    core.debug(`Checks: ${JSON.stringify(checks, null, 2)}`)
+
+    core.info('Retrieving the workflow runs...')
+    const workflowRunRegExp = new RegExp(`https://github.com/${owner}/${repo}/actions/runs/([0-9]+)`)
+    const workflowRuns = {}
+    for (const check of checks) {
+      const match = check.details_url.match(workflowRunRegExp)
+      if (match !== null) {
+        const run_id = match[1]
+        if (workflowRuns[run_id] === undefined) {
+          workflowRuns[run_id] = await octokit.rest.actions.getWorkflowRun({
+            owner,
+            repo,
+            run_id
+          })
+        }
+        check.workflow_run = workflowRuns[run_id].data
+      }
+    }
+    core.debug(`Checks: ${JSON.stringify(checks, null, 2)}`)
+
+    core.info('Compiling template...')
+    const compiled = _.template(template)
+
+    core.info('Rendering the comment\'s body...')
+    const rendered = compiled({pull: pull.data, checks, emojis, descriptions})
+    const body = `<!-- ${identifier} -->\n${rendered}`
+    core.info(`Comment's body: ${body}`)
+
+    core.info('Trying to retrieve the existing comment...')
+    const comments = await octokit.paginate(octokit.rest.issues.listComments, {
+      owner,
+      repo,
+      issue_number: pull_number
+    })
+    let comment = comments.find(comment => comment.body.startsWith(`<!-- ${identifier} -->`))
+    core.debug(`Comments: ${JSON.stringify(comments, null, 2)}`)
+    core.debug(`Comment: ${JSON.stringify(comment, null, 2)}`)
+
+    if (comment === undefined) {
+      core.info('Creating the comment...')
+      comment = await octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: pull_number,
+        body
+      })
+    } else {
+      core.info('Updating the comment...')
+      comment = await octokit.rest.issues.updateComment({
+        owner,
+        repo,
+        comment_id: comment.id,
+        body
+      })
+    }
+
+    core.debug(`Comment: ${JSON.stringify(comment, null, 2)}`)
+    core.info(`The comment has been successully posted: ${comment.data.html_url}`)
+  } catch (error) {
+    core.setFailed(error.message)
+  }
+}
+
+run()

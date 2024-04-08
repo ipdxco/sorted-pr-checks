@@ -1,0 +1,32 @@
+name: 'Sorted PR Checks'
+description: 'Comments on a pull request with a summary of the checks'
+
+branding:
+  icon: 'award'
+  color: 'green'
+
+inputs:
+  repository:
+    description: 'The repository to comment on'
+    required: true
+    default: '${{ github.repository }}'
+  pull_number:
+    description: 'The pull request number'
+    required: true
+    default: '${{ github.event.workflow_run.pull_requests[0].number }}'
+  template:
+    description: 'The template name or a lodash style template to use for the comment'
+    required: false
+    default: 'sorted_by_result'
+  identifier:
+    description: 'The identifier to use for the sticky comment'
+    required: true
+    default: '${{ github.workflow }}-${{ github.job }}'
+  token:
+    description: 'The GitHub token'
+    required: true
+    default: '${{ github.token }}'
+
+runs:
+  using: 'node20'
+  main: 'index.js'

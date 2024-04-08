@@ -1,0 +1,25 @@
+{
+  "name": "sorted-pr-checks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipdxco/sorted-pr-checks.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ipdxco/sorted-pr-checks/issues"
+  },
+  "homepage": "https://github.com/ipdxco/sorted-pr-checks#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0",
+    "lodash": "^4.17.21"
+  }
+}

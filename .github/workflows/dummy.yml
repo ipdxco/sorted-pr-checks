@@ -1,0 +1,57 @@
+name: Dummy
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  matrix:
+    name: Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      numbers: ${{ steps.matrix.outputs.numbers }}
+    steps:
+      - id: matrix
+        run: |
+          for _ in $(seq $((RANDOM % 6 + 5))); do echo $((RANDOM % 21 + 10)); done | \
+            jq -sc '.' | \
+            xargs -I {} -0 echo "numbers={}" | \
+            tee -a $GITHUB_OUTPUT
+  success:
+    needs: [matrix]
+    name: Succeed
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        number: ${{fromJson(needs.matrix.outputs.numbers)}}
+      fail-fast: false
+    steps:
+      - env:
+          NUMBER: ${{ matrix.number }}
+        run: sleep "${NUMBER}"
+  failure:
+    needs: [matrix]
+    name: Fail & Cancel
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        number: ${{fromJson(needs.matrix.outputs.numbers)}}
+      fail-fast: true
+    steps:
+      - env:
+          NUMBER: ${{ matrix.number }}
+        run: |
+          sleep "${NUMBER}"
+          exit 1
+  skipped:
+    needs: [success, failure]
+    name: Skip
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello, world!"

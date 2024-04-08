@@ -1,0 +1,48 @@
+name: Comment
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        description: 'The repository to comment on'
+        required: false
+        default: '${{ github.repository }}'
+        type: string
+      pull_number:
+        description: 'The pull request number'
+        required: false
+        default: '${{ github.event.workflow_run.pull_requests[0].number }}'
+        type: string
+      template:
+        description: 'The template name or a lodash style template to use for the comment'
+        required: false
+        default: 'sorted_by_result'
+        type: string
+      identifier:
+        description: 'The identifier to use for the sticky comment'
+        required: false
+        default: '${{ github.workflow }}-${{ github.job }}'
+        type: string
+
+permissions:
+  pull-requests: write
+
+jobs:
+  comment:
+    name: Comment
+    runs-on: ubuntu-latest
+    steps:
+      - id: reusable-workflow
+        uses: ipdxco/reusable-workflow-context@bd065a1588139ea822a06c07cb6209782d74efb0
+        with:
+          path: ipdxco/sorted-pr-checks/.github/workflows/comment.yml
+      - uses: actions/checkout@v4
+        with:
+          repository: ipdxco/sorted-pr-checks
+          path: sorted-pr-checks
+          ref: ${{ steps.reusable-workflow.outputs.sha }}
+      - uses: ./sorted-pr-checks
+        with:
+          pull_number: ${{ inputs.pull_number }}
+          template: ${{ inputs.template }}
+          identifier: ${{ inputs.identifier }}

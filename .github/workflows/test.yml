@@ -1,0 +1,56 @@
+name: Test
+
+on:
+  workflow_run:
+    workflows:
+      - Dummy
+    types:
+      - requested
+      - completed
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number || 'unknown' }}
+  cancel-in-progress: true
+
+jobs:
+  reusable-workflow:
+    if: github.event.workflow_run.pull_requests[0]
+    uses: ./.github/workflows/comment.yml
+  matrix:
+    if: github.event.workflow_run.pull_requests[0]
+    runs-on: ubuntu-latest
+    outputs:
+      templates: ${{ steps.matrix.outputs.templates }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - id: matrix
+        run: |
+          ls | \
+            xargs -I {} basename -s .md {} | \
+            jq -R '[.]' | \
+            jq -sc add | \
+            xargs -I {} -0 echo "templates={}" | \
+            tee -a $GITHUB_OUTPUT
+        working-directory: templates
+  action:
+    needs: [matrix]
+    if: github.event.workflow_run.pull_requests[0]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        template: ${{fromJson(needs.matrix.outputs.templates)}}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          path: sorted-pr-checks
+      - uses: ./sorted-pr-checks
+        with:
+          template: ${{ matrix.template }}
+          identifier: ${{ github.workflow }}-${{ github.job }}-${{ matrix.template }}
