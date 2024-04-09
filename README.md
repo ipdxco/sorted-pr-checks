@@ -50,9 +50,9 @@ steps:
   - uses: ipdxco/sorted-pr-checks@v1
 ```
 
-## What templates are available
+## What templates are available?
 
-The [./templates] directory contains all the available templates. They follow the _lodash.template_ syntax. You can choose one of the ready-made templates or implement one yourself!
+The [templates](./templates) directory contains all the available templates. They follow the _lodash.template_ syntax. You can choose one of the ready-made templates or implement one yourself!
 
 ### sorted_by_result (default)
 
