@@ -17,7 +17,7 @@ All checks have completed<%
     const sorted = _.sortBy(checks, ['workflow_run.name', 'name', 'workflow_run.event'])
     _.forEach(sorted, (check) => {
       %>
-[<%= check.workflow_run.name %> / <%= check.name %> (<%= check.workflow_run.event %>)](<%= check.details_url %>)<%
+[<%= check?.workflow_run?.name || 'Unknown' %> / <%= check.name %> (<%= check?.workflow_run?.event || 'unknown' %>)](<%= check.details_url %>)<%
     })
     %>
 </details>

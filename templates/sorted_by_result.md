@@ -10,6 +10,6 @@ All checks have completed
   _.forEach(sorted, (check) => {
     const result = check.conclusion || check.status
     %>
-<%= emojis[result] %> <%= descriptions[result] %> [<%= check.workflow_run.name %> / <%= check.name %> (<%= check.workflow_run.event %>)](<%= check.details_url %>) <%
+<%= emojis[result] %> <%= descriptions[result] %> [<%= check?.workflow_run?.name || 'Unknown' %> / <%= check.name %> (<%= check?.workflow_run?.event || 'unknown' %>)](<%= check.details_url %>) <%
   })
 }%>
