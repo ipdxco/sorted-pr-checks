@@ -62,6 +62,11 @@ The [templates](./templates) directory contains all the available templates. The
 
 <img width="902" alt="Screenshot 2024-04-08 at 12 58 42" src="https://github.com/ipdxco/sorted-pr-checks/assets/6688074/92ae49b6-fdcc-4e74-87db-ba101a28dcdf">
 
+### unsuccessful_only
+
+<img width="903" alt="Screenshot 2024-04-11 at 13 14 17" src="https://github.com/ipdxco/sorted-pr-checks/assets/6688074/4a416720-d93b-4fd5-a983-48d1515a9504">
+
+
 ## How do I switch between the templates?
 
 Here are all the configuration options. The action and the reusable workflow share the exact same inputs.
