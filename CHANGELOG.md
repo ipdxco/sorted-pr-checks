@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.0.2] - 2024-04-09
+### Added
+- Added the `unsuccessful_only` template
+
 ## [1.0.1] - 2024-04-09
 ### Fixed
 - Templates can now be rendered even if a check is not related to a workflow run
