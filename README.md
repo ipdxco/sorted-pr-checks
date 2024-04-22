@@ -32,12 +32,12 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number || 'unknown' }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number }}
   cancel-in-progress: true
 
 jobs:
   comment:
-    if: github.event.workflow_run.pull_requests[0]
+    if: github.event.workflow_run.event == 'pull_reqeust' || github.event.workflow_run.event == 'pull_request_target'
     uses: ipdxco/sorted-pr-checks/.github/workflows/comment.yml@v1
 ```
 

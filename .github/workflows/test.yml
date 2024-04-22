@@ -12,15 +12,15 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number || 'unknown' }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number }}
   cancel-in-progress: true
 
 jobs:
   reusable-workflow:
-    if: github.event.workflow_run.pull_requests[0]
+    if: github.event.workflow_run.event == 'pull_reqeust' || github.event.workflow_run.event == 'pull_request_target'
     uses: ./.github/workflows/comment.yml
   matrix:
-    if: github.event.workflow_run.pull_requests[0]
+    if: github.event.workflow_run.event == 'pull_reqeust' || github.event.workflow_run.event == 'pull_request_target'
     runs-on: ubuntu-latest
     outputs:
       templates: ${{ steps.matrix.outputs.templates }}
@@ -39,7 +39,7 @@ jobs:
         working-directory: templates
   action:
     needs: [matrix]
-    if: github.event.workflow_run.pull_requests[0]
+    if: github.event.workflow_run.event == 'pull_reqeust' || github.event.workflow_run.event == 'pull_request_target'
     runs-on: ubuntu-latest
     strategy:
       matrix:
