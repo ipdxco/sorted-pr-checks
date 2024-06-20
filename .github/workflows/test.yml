@@ -16,6 +16,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  show:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ toJSON(github.event) }}"
   reusable-workflow:
     if: github.event.workflow_run.event == 'pull_reqeust' || github.event.workflow_run.event == 'pull_request_target'
     uses: ./.github/workflows/comment.yml
