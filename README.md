@@ -32,7 +32,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.id }}
   cancel-in-progress: true
 
 jobs:
@@ -76,7 +76,7 @@ with:
   # The repository to comment on
   repository: '${{ github.repository }}'
   # The pull request number
-  pull_number: '${{ github.event.workflow_run.pull_requests[0].number }}'
+  pull_number: ''
   # The template name or a lodash style template to use for the comment
   template: 'sorted_by_result'
   # The identifier to use for the sticky comment
