@@ -76,7 +76,7 @@ async function run() {
       }
       core.info('Finding matching pull requests...')
       const pull_requests = await octokit.paginate(octokit.rest.issues.search, {
-        q: `is:pr repo:${owner}/${repo} head:${github.context.payload.head_branch} base:${github.context.payload.base_branch} ${github.context.payload.commit.id}`
+        q: `is:pr repo:${owner}/${repo} head:${github.context.payload.workflow_run.head_branch} base:${github.context.payload.workflow_run.base_branch} ${github.context.payload.workflow_run.head_commit.id}`
       })
       core.debug(`Pull requests: ${JSON.stringify(pull_requests, null, 2)}`)
       if (pull_requests.length === 0) {
