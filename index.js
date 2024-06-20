@@ -40,7 +40,7 @@ async function run() {
     core.info('Retrieving the inputs...')
     const repository = core.getInput('repository')
     const [owner, repo] = repository.split('/').slice(-2)
-    const pull_number = core.getInput('pull_number')
+    const pull_number_option = core.getInput('pull_number')
     const template_name = core.getInput('template')
     const identifier = core.getInput('identifier')
     const token = core.getInput('token')
@@ -67,6 +67,29 @@ async function run() {
 
     core.info('Setting up the GitHub client...')
     const octokit = new github.getOctokit(token)
+
+    core.info('Inferring the pull request number...')
+    let pull_number
+    if (pull_number_option === '') {
+      if (github.context.eventName !== 'workflow_run' || github.context.payload.event !== 'pull_request') {
+        throw new Error('The pull request number must be provided when not running in a workflow run event (triggered by pull_request event) context.')
+      }
+      core.info('Finding matching pull requests...')
+      const pull_requests = await octokit.paginate(octokit.rest.issues.search, {
+        q: `is:pr repo:${owner}/${repo} head:${github.context.payload.head_branch} base:${github.context.payload.base_branch} ${github.context.payload.commit.id}`
+      })
+      core.debug(`Pull requests: ${JSON.stringify(pull_requests, null, 2)}`)
+      if (pull_requests.length === 0) {
+        throw new Error('No pull request found for the commit.')
+      }
+      if (pull_requests.length > 1) {
+        throw new Error('Multiple pull requests found for the commit.')
+      }
+      pull_number = pull_requests[0].number
+    } else {
+      pull_number = parseInt(pull_number_option)
+    }
+    core.info(`Pull request number: ${pull_number}`)
 
     core.info('Retrieving the pull request...')
     const pull = await octokit.rest.pulls.get({
