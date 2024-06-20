@@ -75,7 +75,7 @@ async function run() {
         throw new Error('The pull request number must be provided when not running in a workflow run event (triggered by pull_request event) context.')
       }
       core.info('Finding matching pull requests...')
-      const q = `is:pr repo:${owner}/${repo} head:${github.context.payload.workflow_run.head_branch} base:${github.context.payload.workflow_run.base_branch} ${github.context.payload.workflow_run.head_commit.id}`
+      const q = `is:pr repo:${owner}/${repo} head:${github.context.payload.workflow_run.head_branch} ${github.context.payload.workflow_run.head_sha}`
       core.info(`Query: ${q}`)
       const pull_requests = await octokit.paginate(octokit.rest.search.issuesAndPullRequests, { q })
       core.debug(`Pull requests: ${JSON.stringify(pull_requests, null, 2)}`)
