@@ -45,7 +45,7 @@ async function run() {
     const identifier = core.getInput('identifier')
     const token = core.getInput('token')
     core.info(`Repository: ${repository}`)
-    core.info(`Pull request number: ${pull_number}`)
+    core.info(`Pull request number (optional): ${pull_number_option}`)
     core.info(`Template: ${template_name}`)
     core.info(`Identifier: ${identifier}`)
     core.info(`Token: ${token != null ? '***' : null}`)
