@@ -71,7 +71,7 @@ async function run() {
     core.info('Inferring the pull request number...')
     let pull_number
     if (pull_number_option === '') {
-      if (github.context.eventName !== 'workflow_run' || github.context.payload.event !== 'pull_request') {
+      if (github.context.eventName !== 'workflow_run' || github.context.payload.workflow_run.event !== 'pull_request') {
         throw new Error('The pull request number must be provided when not running in a workflow run event (triggered by pull_request event) context.')
       }
       core.info('Finding matching pull requests...')
