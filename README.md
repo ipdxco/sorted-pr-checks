@@ -37,7 +37,7 @@ concurrency:
 
 jobs:
   comment:
-    if: github.event.workflow_run.event == 'pull_reqeust' || github.event.workflow_run.event == 'pull_request_target'
+    if: github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'pull_request_target'
     uses: ipdxco/sorted-pr-checks/.github/workflows/comment.yml@v1
 ```
 
