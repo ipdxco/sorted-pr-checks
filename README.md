@@ -1,4 +1,4 @@
-# Sorted PR Checks
+# Sorted PR Checks!
 
 This GitHub Actions reusable workflow and action address [the limitation of the GitHub UI](https://github.com/orgs/community/discussions/7885), which does not sort or group Pull Request check results. The solution proposed here is to post a sticky comment to the Pull Request with a sorted and, optionally, grouped list of checks. This makes it easier to find failed GitHub Actions jobs at a glance.
 
