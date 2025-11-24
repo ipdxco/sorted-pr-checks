@@ -25,7 +25,7 @@ jobs:
     outputs:
       templates: ${{ steps.matrix.outputs.templates }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
       - id: matrix
@@ -46,7 +46,7 @@ jobs:
         template: ${{fromJson(needs.matrix.outputs.templates)}}
       fail-fast: false
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           path: sorted-pr-checks
